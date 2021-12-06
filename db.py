@@ -3,7 +3,7 @@ import sqlite3
 
 root = Tk()
 root.title('Task Manager')
-root.geometry('410x300')
+root.geometry('370x370')
 
 conn = sqlite3.connect('todo.db')
 c = conn.cursor()
