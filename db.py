@@ -3,7 +3,7 @@ import sqlite3
 
 root = Tk()
 root.title('Task Manager')
-root.geometry('370x370')
+root.geometry('390x370')
 
 conn = sqlite3.connect('todo.db')
 c = conn.cursor()
@@ -28,17 +28,31 @@ def complete(id):
         render_todos()
     return _complete
 
+def remove_todo(id):
+    def _remove():
+        c.execute('DELETE FROM todo WHERE id = ?', (id,))
+        conn.commit()
+        render_todos()
+    return _remove()
+
 def render_todos():
     rows = c.execute('SELECT * FROM todo').fetchall()
+    for widget in frame.winfo_children():
+        widget.destroy()
+
     # print(rows)
     for i in range(0, len(rows)):
         id = rows[i][0]
         completed = rows[i][3]
         description = rows[i][2]
+
         color = '#00A623' if completed else '#EF4529'
-        checkbutton = Checkbutton(frame, text=description, fg=color, width=46, anchor='w', command=complete(id))
+        checkbutton = Checkbutton(frame, text=description, fg=color, width=40, anchor='w', command=complete(id))
         checkbutton.grid(row=i, column=0, sticky='w')
         checkbutton.select() if completed else checkbutton.deselect()
+        btn = Button(frame, text='Delete', command=lambda: remove_todo(id))
+        btn.grid(row=i, column=1)
+
 
 def addTodo():
     todo = e.get()
