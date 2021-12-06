@@ -19,14 +19,26 @@ c.execute("""
 
 conn.commit()
 
+# Currying
+def complete(id):
+    def _complete():
+        todo = c.execute('SELECT * FROM todo WHERE id = ?', (id,)).fetchone()
+        c.execute('UPDATE todo SET completed = ? WHERE id = ?', (not todo[3], id))
+        conn.commit()
+        render_todos()
+    return _complete
+
 def render_todos():
     rows = c.execute('SELECT * FROM todo').fetchall()
-    print(rows)
+    # print(rows)
     for i in range(0, len(rows)):
+        id = rows[i][0]
         completed = rows[i][3]
         description = rows[i][2]
-        checkbutton = Checkbutton(frame, text=description, width=46, anchor='w')
+        color = '#00A623' if completed else '#EF4529'
+        checkbutton = Checkbutton(frame, text=description, fg=color, width=46, anchor='w', command=complete(id))
         checkbutton.grid(row=i, column=0, sticky='w')
+        checkbutton.select() if completed else checkbutton.deselect()
 
 def addTodo():
     todo = e.get()
